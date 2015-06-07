@@ -42,15 +42,11 @@ class SignIn(Base):
     def __init__(self, selenium, timeout, expect=None, default_implicit_wait=10):
         Base.__init__(self, selenium, timeout, default_implicit_wait)
 
-        if self.selenium.title != self._page_title:
-            for handle in self.selenium.window_handles:
-                self.selenium.switch_to_window(handle)
-                WebDriverWait(self.selenium, self.timeout).until(lambda s: s.title)
-                if self.selenium.title == self._page_title:
-                    self._sign_in_window_handle = handle
-                    break
-            else:
-                raise Exception('Popup has not loaded')
+        self.selenium.switch_to_window('__persona_dialog')
+        if self.selenium.title.startswith('Mozilla Persona'):
+            self._sign_in_window_handle = '__persona_dialog'
+        else:
+            raise Exception('Popup has not loaded')
 
         # Replace expectations with two conditions
         WebDriverWait(self.selenium, self.timeout).until(self._is_page_ready)
